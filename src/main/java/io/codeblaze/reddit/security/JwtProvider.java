@@ -1,10 +1,10 @@
 package io.codeblaze.reddit.security;
 
 import io.codeblaze.reddit.exceptions.SpringRedditException;
-import io.codeblaze.reddit.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
