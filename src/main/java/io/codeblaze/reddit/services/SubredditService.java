@@ -1,6 +1,8 @@
 package io.codeblaze.reddit.services;
 
 import io.codeblaze.reddit.dto.SubredditDto;
+import io.codeblaze.reddit.exceptions.SpringRedditException;
+import io.codeblaze.reddit.mapper.SubredditMapper;
 import io.codeblaze.reddit.model.Subreddit;
 import io.codeblaze.reddit.repository.SubredditRepository;
 import lombok.AllArgsConstructor;
@@ -18,33 +20,29 @@ import java.util.stream.Collectors;
 public class SubredditService {
 
     private final SubredditRepository subredditRepository;
+    private final SubredditMapper subredditMapper;
 
     @Transactional
     public SubredditDto save(SubredditDto subredditDto) {
-        Subreddit subreddit = subredditRepository.save(mapSubredditDto(subredditDto));
+        Subreddit subreddit = subredditRepository.save(subredditMapper.mapDtoToSubreddit(subredditDto));
         subredditDto.setId(subreddit.getId());
         return subredditDto;
     }
 
     @Transactional(readOnly = true)
     public List<SubredditDto> getAll() {
-        return subredditRepository.findAll().stream().map(this::mapToDto).collect(Collectors.toList());
+        return subredditRepository
+            .findAll()
+            .stream()
+            .map(subredditMapper::mapSubredditToDto)
+            .collect(Collectors.toList());
     }
 
-    private Subreddit mapSubredditDto(SubredditDto subredditDto) {
-        return Subreddit
-            .builder()
-            .name(subredditDto.getName())
-            .description(subredditDto.getDescription())
-            .build();
-    }
+    public SubredditDto getSubreddit(Long id) {
+        Subreddit subreddit = subredditRepository.findById(id)
+            .orElseThrow(() -> new SpringRedditException("No subreddit found with Id : " + id));
 
-    private SubredditDto mapToDto(Subreddit subreddit) {
-        return  SubredditDto
-            .builder()
-            .name(subreddit.getName())
-            .description(subreddit.getDescription())
-            .build();
+        return subredditMapper.mapSubredditToDto(subreddit);
     }
 
 }
